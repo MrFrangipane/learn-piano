@@ -37,8 +37,6 @@ def find_samples_folder():
     if os.environ.get('LP_SAMPLES_PATH', False):
         return os.environ['LP_SAMPLES_PATH']
 
-    print __file__
-
     installation_folder = os.path.dirname(__file__) + '/audio/sample-conform'
     if os.path.isdir(installation_folder):
         return installation_folder
@@ -58,12 +56,10 @@ def midi_port_open(name):
 
 def midi_recieve(port):
     message = port.receive()
-    # print '\t' + str(message)
     return message
 
 
 def poll_note_on(port):
-    # print 'Waiting for MIDI note on'
     message = midi_recieve(port)
 
     while message.type != 'note_on':
