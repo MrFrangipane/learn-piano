@@ -35,13 +35,12 @@ NOTES = {
 
 def find_samples_folder():
     if os.environ.get('LP_SAMPLES_PATH', False):
-        folder = os.environ['LP_SAMPLES_PATH']
+        return os.environ['LP_SAMPLES_PATH']
 
-    intallation_folder = os.path.dirname(os.path.dirname(__file__)) + '/audio/sample-conform'
-    if os.path.isdir(intallation_folder):
-        folder = intallation_folder
-
-    return folder
+    installation_folder = os.path.dirname(os.path.dirname(__file__)) + '/audio/sample-conform'
+    print installation_folder
+    if os.path.isdir(installation_folder):
+        return installation_folder
 
 
 def midi_port_open(name):
