@@ -38,7 +38,10 @@ def find_samples_folder():
         return os.environ['LP_SAMPLES_PATH']
 
     installation_folder = os.path.dirname(os.path.dirname(__file__)) + '/audio/sample-conform'
-    print installation_folder
+    if os.path.isdir(installation_folder):
+        return installation_folder
+
+    installation_folder = os.path.dirname(__file__) + '/audio/sample-conform'
     if os.path.isdir(installation_folder):
         return installation_folder
 
