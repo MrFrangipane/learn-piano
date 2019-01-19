@@ -4,7 +4,7 @@ from PySide.QtGui import QApplication, QWidget
 import mido
 
 
-EXIT_NOTE_NUMBER = 71
+EXIT_NOTE_NUMBER = 72
 NOTES = {
     48: 'Piano.ff.C3.wav',
     49: 'Piano.ff.Db3.wav',
@@ -101,6 +101,7 @@ class Dummy(QWidget):
         QWidget.__init__(self, parent)
 
         self.samples = load_samples()
+        self.samples.values()[0].play()
 
         with midi_port_open(midi_port) as port_in:
             message = poll_note_on(port_in)
