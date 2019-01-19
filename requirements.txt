@@ -1,0 +1,3 @@
+python-rtmidi
+PySide
+Mido

@@ -1,0 +1,5 @@
+.idea
+*.py[cod]
+*.reapeaks
+*.rpp-bak
+*.aiff
