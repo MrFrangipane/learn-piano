@@ -36,14 +36,20 @@ NOTES = {
 
 
 def open_port(name):
-    for port_name in mido.get_input_names():
+    port_names = mido.get_input_names()
+    print 'Ports:\n' + '\n'.join(port_names)
+
+    for port_name in port_names:
         if name.lower() in port_name.lower():
+            print '-> opening ' + port_name
             return mido.open_input(port_name)
     raise RuntimeError('No midi port found : {}'.format(name))
 
 
 def note_on(port):
+    print 'Waiting for MIDI message'
     message = port.receive()
+    print '\t' + message
     while message.type != 'note_on':
         message = port.receive()
     return message
