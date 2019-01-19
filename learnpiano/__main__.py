@@ -46,12 +46,18 @@ def open_port(name):
     raise RuntimeError('No midi port found : {}'.format(name))
 
 
-def note_on(port):
-    print 'Waiting for MIDI message'
+def recieve(port):
     message = port.receive()
     print '\t' + str(message)
+    return message
+
+
+def note_on(port):
+    print 'Waiting for MIDI note on'
+    message = recieve(port)
+
     while message.type != 'note_on':
-        message = port.receive()
+        message = recieve(port)
     return message
 
 
@@ -82,4 +88,5 @@ class Dummy(QWidget):
 if __name__ == '__main__':
     app = QApplication([])
     widget = Dummy()
+    widget.show()
     app.exec_()
