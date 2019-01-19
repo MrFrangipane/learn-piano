@@ -3,11 +3,8 @@ import pygame
 from PySide.QtGui import QApplication, QWidget
 import mido
 
-PATH = "E:/PROJETS/dev/learn-piano/audio/sample-conform"
-if os.environ.get('LP_SAMPLES_PATH', False):
-    PATH = os.environ['LP_SAMPLES_PATH']
 
-
+EXIT_NOTE_NUMBER = 71
 NOTES = {
     48: 'Piano.ff.C3.wav',
     49: 'Piano.ff.Db3.wav',
@@ -36,50 +33,85 @@ NOTES = {
 }
 
 
-def open_port(name):
+def find_samples_folder():
+    if os.environ.get('LP_SAMPLES_PATH', False):
+        folder = os.environ['LP_SAMPLES_PATH']
+
+    intallation_folder = os.path.dirname(os.path.dirname(__file__)) + '/audio/sample-conform'
+    if os.path.isdir(intallation_folder):
+        folder = intallation_folder
+
+    return folder
+
+
+def midi_port_open(name):
     port_names = mido.get_input_names()
-    print 'Ports:\n' + '\n'.join(port_names)
+    print 'MIDI Ports:\n' + '\n'.join(['- ' + name_ for name_ in port_names])
 
     for port_name in port_names:
         if name.lower() in port_name.lower():
             print '-> opening ' + port_name
             return mido.open_input(port_name)
+
     raise RuntimeError('No midi port found : {}'.format(name))
 
 
-def recieve(port):
+def midi_recieve(port):
     message = port.receive()
     # print '\t' + str(message)
     return message
 
 
-def note_on(port):
+def poll_note_on(port):
     # print 'Waiting for MIDI note on'
-    message = recieve(port)
+    message = midi_recieve(port)
 
     while message.type != 'note_on':
-        message = recieve(port)
+        message = midi_recieve(port)
     return message
 
 
+def load_samples():
+    samples = dict()
+    samples_folder = find_samples_folder()
+
+    for note_id, filename in NOTES.items():
+        filepath = samples_folder + '/' + filename
+
+        if not os.path.isfile(filepath):
+            raise RuntimeError('Sample not found : ' + filepath)
+
+        samples[note_id] = pygame.mixer.Sound(filepath)
+
+    return samples
+
+
+def audio_init():
+    print 'Init audio ...'
+    pygame.mixer.pre_init(44100, -16, 2, 512)
+    pygame.mixer.init()
+    while pygame.mixer.get_init() is None:
+        pass
+
+
+def audio_close():
+    pygame.mixer.quit()
+
+
 class Dummy(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, midi_port, parent=None):
         QWidget.__init__(self, parent)
 
-        sounds = dict()
-        for note_id, filename in NOTES.items():
-            filepath = PATH + '/' + filename
-            sounds[note_id] = pygame.mixer.Sound(filepath)
+        self.samples = load_samples()
 
-        with open_port('XBoard25') as port_in:
-            message = note_on(port_in)
+        with midi_port_open(midi_port) as port_in:
+            message = poll_note_on(port_in)
 
-            while message.note != 72:
+            while message.note != EXIT_NOTE_NUMBER:
                 if message.velocity > 0:
-                    # print 'play ' + NOTES[message.note]
-                    sounds[message.note].play()
+                    self.samples[message.note].play()
 
-                message = note_on(port_in)
+                message = poll_note_on(port_in)
 
         print "Exiting"
         import sys
@@ -87,12 +119,11 @@ class Dummy(QWidget):
 
 
 if __name__ == '__main__':
-    pygame.mixer.pre_init(44100, -16, 2, 512)
-    pygame.mixer.init()
+    audio_init()
 
     app = QApplication([])
-    widget = Dummy()
+    widget = Dummy(midi_port='XBoard25')
     widget.show()
     app.exec_()
 
-    pygame.mixer.quit()
+    audio_close()
