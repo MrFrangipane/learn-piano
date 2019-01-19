@@ -39,10 +39,6 @@ def find_samples_folder():
 
     print __file__
 
-    installation_folder = os.path.dirname(os.path.dirname(__file__)) + '/audio/sample-conform'
-    if os.path.isdir(installation_folder):
-        return installation_folder
-
     installation_folder = os.path.dirname(__file__) + '/audio/sample-conform'
     if os.path.isdir(installation_folder):
         return installation_folder
@@ -86,6 +82,8 @@ def load_samples():
             raise RuntimeError('Sample not found : ' + filepath)
 
         samples[note_id] = pygame.mixer.Sound(filepath)
+
+    print 'Samples Loaded'
 
     return samples
 
