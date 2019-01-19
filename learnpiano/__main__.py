@@ -1,5 +1,6 @@
 import os
-from PySide.QtGui import QApplication, QSound, QWidget
+import pygame
+from PySide.QtGui import QApplication, QWidget
 import mido
 
 PATH = "E:/PROJETS/dev/learn-piano/audio/sample-conform"
@@ -48,12 +49,12 @@ def open_port(name):
 
 def recieve(port):
     message = port.receive()
-    print '\t' + str(message)
+    # print '\t' + str(message)
     return message
 
 
 def note_on(port):
-    print 'Waiting for MIDI note on'
+    # print 'Waiting for MIDI note on'
     message = recieve(port)
 
     while message.type != 'note_on':
@@ -68,14 +69,14 @@ class Dummy(QWidget):
         sounds = dict()
         for note_id, filename in NOTES.items():
             filepath = PATH + '/' + filename
-            sounds[note_id] = QSound(filepath)
+            sounds[note_id] = pygame.mixer.Sound(filepath)
 
         with open_port('XBoard25') as port_in:
             message = note_on(port_in)
 
             while message.note != 72:
                 if message.velocity > 0:
-                    print 'play ' + NOTES[message.note]
+                    # print 'play ' + NOTES[message.note]
                     sounds[message.note].play()
 
                 message = note_on(port_in)
@@ -86,7 +87,12 @@ class Dummy(QWidget):
 
 
 if __name__ == '__main__':
+    pygame.mixer.pre_init(44100, -16, 2, 512)
+    pygame.mixer.init()
+
     app = QApplication([])
     widget = Dummy()
     widget.show()
     app.exec_()
+
+    pygame.mixer.quit()
