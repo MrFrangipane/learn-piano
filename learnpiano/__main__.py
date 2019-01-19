@@ -49,7 +49,7 @@ def open_port(name):
 def note_on(port):
     print 'Waiting for MIDI message'
     message = port.receive()
-    print '\t' + message
+    print '\t' + str(message)
     while message.type != 'note_on':
         message = port.receive()
     return message
@@ -73,6 +73,7 @@ class Dummy(QWidget):
 
                 message = note_on(port_in)
 
+        print "Exiting"
         import sys
         sys.exit(0)
 
