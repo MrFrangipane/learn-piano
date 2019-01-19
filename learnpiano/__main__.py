@@ -69,6 +69,7 @@ class Dummy(QWidget):
 
             while message.note != 72:
                 if message.velocity > 0:
+                    print 'play ' + NOTES[message.note]
                     sounds[message.note].play()
 
                 message = note_on(port_in)
